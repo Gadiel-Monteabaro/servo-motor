@@ -45,11 +45,13 @@ async function main() {
   client.on("message", async (topic, message) => {
     const estado = message.toString();
     const fecha = new Date();
+    const usuario = "Nazarena";
     console.log(`Estado recibido: ${estado} a las ${fecha.toLocaleString()}`);
 
     try {
-      const sql = "INSERT INTO registros (estado, hora) VALUES (?, ?)";
-      await db.execute(sql, [estado, fecha]);
+      const sql =
+        "INSERT INTO registros (estado, hora, usuario) VALUES (?, ?, ?)";
+      await db.execute(sql, [estado, fecha, usuario]);
       console.log("Estado guardado en MySQL 💾");
     } catch (err) {
       console.error("Error guardando en MySQL:", err);
@@ -57,10 +59,11 @@ async function main() {
   });
 }
 
-// 🔹 Endpoint para obtener registros
 app.get("/api/puertas", async (req, res) => {
   try {
-    const [rows] = await db.query("SELECT * FROM registros ORDER BY id DESC LIMIT 10");
+    const [rows] = await db.query(
+      "SELECT * FROM registros ORDER BY id DESC LIMIT 10"
+    );
     res.json(rows);
   } catch (err) {
     res.status(500).json({ error: err.message });
