@@ -1,10 +1,18 @@
 import mqtt from "mqtt";
 import mysql from "mysql2/promise";
 import "dotenv/config";
+import cors from "cors";
+import express from "express";
+
+const app = express();
+app.use(cors());
+app.use(express.json());
+
+let db;
 
 async function main() {
   // Conexión MySQL
-  const db = await mysql.createConnection({
+  db = await mysql.createConnection({
     host: process.env.HOST,
     user: process.env.USER,
     password: process.env.PASSWORD,
@@ -28,7 +36,7 @@ async function main() {
   const client = mqtt.connect(MQTT_BROKER);
 
   client.on("connect", () => {
-    console.log("Conectado al broker MQTT");
+    console.log("Conectado al broker MQTT ✅");
     client.subscribe(MQTT_TOPIC, (err) => {
       if (err) console.error("Error suscribiéndose al topic:", err);
     });
@@ -37,16 +45,30 @@ async function main() {
   client.on("message", async (topic, message) => {
     const estado = message.toString();
     const fecha = new Date();
-    console.log(`Estado recibido: ${estado} a las ${fecha}`);
+    console.log(`Estado recibido: ${estado} a las ${fecha.toLocaleString()}`);
 
     try {
       const sql = "INSERT INTO registros (estado, hora) VALUES (?, ?)";
       await db.execute(sql, [estado, fecha]);
-      console.log("Estado guardado en MySQL");
+      console.log("Estado guardado en MySQL 💾");
     } catch (err) {
       console.error("Error guardando en MySQL:", err);
     }
   });
 }
+
+// 🔹 Endpoint para obtener registros
+app.get("/api/puertas", async (req, res) => {
+  try {
+    const [rows] = await db.query("SELECT * FROM registros ORDER BY id DESC LIMIT 10");
+    res.json(rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.listen(3000, () => {
+  console.log("Servidor corriendo en http://localhost:3000 🚀");
+});
 
 main();
