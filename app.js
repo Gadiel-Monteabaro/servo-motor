@@ -5,7 +5,7 @@ import cors from "cors";
 import express from "express";
 
 const app = express();
-app.use(cors());
+app.use(cors({ origin: "*" }));
 app.use(express.json());
 
 let db;
@@ -45,7 +45,7 @@ async function main() {
   client.on("message", async (topic, message) => {
     const estado = message.toString();
     const fecha = new Date();
-    const usuario = "Nazarena";
+    const usuario = "Gadiel";
     console.log(`Estado recibido: ${estado} a las ${fecha.toLocaleString()}`);
 
     try {
@@ -62,7 +62,7 @@ async function main() {
 app.get("/api/puertas", async (req, res) => {
   try {
     const [rows] = await db.query(
-      "SELECT * FROM registros ORDER BY id DESC LIMIT 10"
+      "SELECT * FROM registros ORDER BY id DESC LIMIT 15"
     );
     res.json(rows);
   } catch (err) {
