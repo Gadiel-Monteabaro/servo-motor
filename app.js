@@ -1,6 +1,4 @@
 import mqtt from "mqtt";
-import mysql from "mysql2/promise";
-import "dotenv/config";
 import cors from "cors";
 import express from "express";
 
@@ -25,7 +23,8 @@ async function main() {
     CREATE TABLE IF NOT EXISTS registros (
       id INT AUTO_INCREMENT PRIMARY KEY,
       estado VARCHAR(50),
-      hora DATETIME
+      hora DATETIME,
+      usuario VARCHAR(100)
     )
   `);
 
@@ -36,7 +35,7 @@ async function main() {
   const client = mqtt.connect(MQTT_BROKER);
 
   client.on("connect", () => {
-    console.log("Conectado al broker MQTT ✅");
+    console.log("Conectado al broker MQTT");
     client.subscribe(MQTT_TOPIC, (err) => {
       if (err) console.error("Error suscribiéndose al topic:", err);
     });
@@ -45,7 +44,7 @@ async function main() {
   client.on("message", async (topic, message) => {
     const estado = message.toString();
     const fecha = new Date();
-    const usuario = "Gadiel";
+    const usuario = "Lucas";
     console.log(`Estado recibido: ${estado} a las ${fecha.toLocaleString()}`);
 
     try {
@@ -71,7 +70,7 @@ app.get("/api/puertas", async (req, res) => {
 });
 
 app.listen(3000, () => {
-  console.log("Servidor corriendo en http://localhost:3000 🚀");
+  console.log("Servidor corriendo en http://localhost:3000");
 });
 
 main();
