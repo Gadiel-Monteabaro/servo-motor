@@ -17,7 +17,7 @@ export function initMQTT() {
   client.on("message", async (topic, message) => {
     const estado = message.toString();
     const fecha = new Date();
-    const usuario = "Lucas";
+    const usuario = "Nazarena";
 
     console.log(`Estado recibido: ${estado} a las ${fecha.toLocaleString()}`);
 
